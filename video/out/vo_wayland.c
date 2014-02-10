@@ -477,8 +477,6 @@ static bool resize(struct priv *p)
 {
     struct vo_wayland_state *wl = p->wl;
 
-    int32_t x = wl->window.sh_x;
-    int32_t y = wl->window.sh_y;
     wl->vo->dwidth = wl->window.sh_width;
     wl->vo->dheight = wl->window.sh_height;
 
@@ -492,12 +490,6 @@ static bool resize(struct priv *p)
                                             wl->window.height,
                                             p->dst_w,
                                             p->dst_h);
-
-    if (x != 0)
-        x = wl->window.width - p->dst_w;
-
-    if (y != 0)
-        y = wl->window.height - p->dst_h;
 
     mp_sws_set_from_cmdline(p->sws);
     p->sws->src = p->in_format;
@@ -532,8 +524,6 @@ static bool resize(struct priv *p)
         wl_region_destroy(opaque);
     }
 
-    p->x = x;
-    p->y = y;
     p->wl->window.events = 0;
     p->vo->want_redraw = true;
     return true;
@@ -563,7 +553,7 @@ static void frame_handle_redraw(void *data,
     struct buffer *buf = buffer_pool_get_front(&p->video_bufpool);
 
     if (buf) {
-        wl_surface_attach(wl->window.surface, buf->wlbuf, p->x, p->y);
+        wl_surface_attach(wl->window.surface, buf->wlbuf, 0, 0);
         wl_surface_damage(wl->window.surface, 0, 0, p->dst_w, p->dst_h);
 
         if (callback)
